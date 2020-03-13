@@ -349,7 +349,7 @@ if (child_unzip == 0) {
 ```
 
 #### c) Diberilah tugas baru yaitu setelah di ekstrak, hasil dari ekstrakan tersebut (di dalam direktori “home/[USER]/modul2/jpg/”) harus dipindahkan sesuai dengan pengelompokan, semua file harus dipindahkan ke “/home/[USER]/modul2/sedaap/” dan semua direktori harus dipindahkan ke “/home/[USER]/modul2/indomie/”.
-##Belum berhasil
+## Belum berhasil
 ```
 while ((wait(&status)) > 0);
             if (child_type == 0) {
