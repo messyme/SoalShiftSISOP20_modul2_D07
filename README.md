@@ -202,11 +202,199 @@ Catatan :
 - Tidak boleh memakai function C mkdir() ataupun rename().
 - Gunakan exec dan fork
 - Direktori “.” dan “..” tidak termasuk
+```
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <wait.h>
+#include <dirent.h>
+#include <string.h>
+#include <unistd.h>
+#include <syslog.h>
+#include <time.h>
+
+
+int main () 
+{
+    pid_t child_id1;
+    child_id1 = fork ();
+    int status;
+
+    pid_t child_id2;
+    child_id2 = fork ();
+
+    pid_t child_unzip;
+    child_unzip = fork ();
+
+    pid_t child_type;
+    child_type = fork ();
+
+    int j = 0;
+    int k = 0;
+
+    char filename[256][256];
+    char filenamed[256][256];
+
+
+    if (child_id1 < 0) {
+        exit (EXIT_FAILURE); // Jika gagal membuat proses baru, program akan berhenti
+    }
+
+    // A.
+    if (child_id1 == 0) {
+        if (child_id2 < 0) {
+            exit (EXIT_FAILURE);
+        }
+        if (child_id2 == 0) {
+            // this is child
+            char *argv[] = {"mkdir", "-p", "modul2/indomie", NULL};
+            execv("/bin/mkdir", argv);
+        }
+        else {
+            // this is parent
+            while ((wait(&status)) > 0);
+            char *argv[] = {"mkdir", "-p", "modul2/sedaap", NULL};
+            execv("/bin/mkdir", argv);
+        }
+    }
+    
+    else {
+        while ((wait(&status)) > 0);
+
+        if (child_unzip == 0) {
+            // B. unzip
+            char *argv[] = {"unzip", "/home/maisie/modul2/jpg.zip", NULL};
+            execv("/usr/bin/unzip", argv);
+        }
+        else {
+            //C. unzip to folder jpg
+            while ((wait(&status)) > 0);
+            if (child_type == 0) {
+                pid_t kelompok, move;
+                int nstatus;
+                DIR *d;
+                struct dirent *dir;
+                if ((d = opendir("modul2/jpg")) != NULL) {
+                    while ((dir = readdir(d)) != NULL) {
+                        if (dir->d_type == DT_REG) {
+                            strcpy (filename[j], dir->d_name); //for file
+                            j++;
+                        }
+                        else {
+                            strcpy (filenamed[k], dir->d_name); //for dir
+                            k++;
+                        }
+                    }
+                    closedir (d);
+                }
+                //C. sedaap
+                for (int i=0; i<j; i++) {
+                    kelompok = fork();
+                    char name[25];
+                    sprintf (name, "modul2/jpg/%s", filename[i]);
+                    if (kelompok == 0) {
+                        char *argv[] = {"mv", name, "/home/maisie/modul2/sedaap/", NULL};
+                        execv("/bin/mv", argv);
+                    }
+                }
+                //c. indomie
+                for (int i=2; i<k; i++) {
+                    kelompok = fork();
+                    char name[25];
+                    sprintf (name, "modul2/jpg/%s", filenamed[i]);
+                    if (kelompok == 0) {
+                        char *argv[] = {"mv", name, "/home/maisie/modul2/indomie/", NULL};
+                        execv("/bin/mv", argv);
+                    }
+                    else {
+                        
+						}
+					}
+                }
+            }
+        }
+    }
+    return 0;
+}
+```
 
 #### a) Program buatan jaya harus bisa membuat dua direktori di “/home/[USER]/modul2/”. Direktori yang pertama diberi nama “indomie”, lalu lima detik kemudian membuat direktori yang kedua bernama “sedaap”.
+```
+if (child_id1 == 0) {
+        if (child_id2 < 0) {
+            exit (EXIT_FAILURE);
+        }
+        if (child_id2 == 0) {
+            // this is child
+            char *argv[] = {"mkdir", "-p", "modul2/indomie", NULL};
+            execv("/bin/mkdir", argv);
+        }
+        else {
+            // this is parent
+            while ((wait(&status)) > 0);
+            char *argv[] = {"mkdir", "-p", "modul2/sedaap", NULL};
+            execv("/bin/mkdir", argv);
+        }
+    }
+```
 
 #### b) Kemudian program tersebut harus meng-ekstrak file jpg.zip di direktori “/home/[USER]/modul2/”. Setelah tugas sebelumnya selesai, ternyata tidak hanya itu tugasnya.
+```
+if (child_unzip == 0) {
+            char *argv[] = {"unzip", "/home/maisie/modul2/jpg.zip", NULL};
+            execv("/usr/bin/unzip", argv);
+}
+```
 
 #### c) Diberilah tugas baru yaitu setelah di ekstrak, hasil dari ekstrakan tersebut (di dalam direktori “home/[USER]/modul2/jpg/”) harus dipindahkan sesuai dengan pengelompokan, semua file harus dipindahkan ke “/home/[USER]/modul2/sedaap/” dan semua direktori harus dipindahkan ke “/home/[USER]/modul2/indomie/”.
+##Belum berhasil
+```
+while ((wait(&status)) > 0);
+            if (child_type == 0) {
+                pid_t kelompok, move;
+                int nstatus;
+                DIR *d;
+                struct dirent *dir;
+                if ((d = opendir("modul2/jpg")) != NULL) {
+                    while ((dir = readdir(d)) != NULL) {
+                        if (dir->d_type == DT_REG) {
+                            strcpy (filename[j], dir->d_name); //for file
+                            j++;
+                        }
+                        else {
+                            strcpy (filenamed[k], dir->d_name); //for dir
+                            k++;
+                        }
+                    }
+                    closedir (d);
+                }
+                //C. sedaap
+                for (int i=0; i<j; i++) {
+                    kelompok = fork();
+                    char name[25];
+                    sprintf (name, "modul2/jpg/%s", filename[i]);
+                    if (kelompok == 0) {
+                        char *argv[] = {"mv", name, "/home/maisie/modul2/sedaap/", NULL};
+                        execv("/bin/mv", argv);
+                    }
+                }
+                //c. indomie
+                for (int i=2; i<k; i++) {
+                    kelompok = fork();
+                    char name[25];
+                    sprintf (name, "modul2/jpg/%s", filenamed[i]);
+                    if (kelompok == 0) {
+                        char *argv[] = {"mv", name, "/home/maisie/modul2/indomie/", NULL};
+                        execv("/bin/mv", argv);
+                    }
+                    else {
+                        
+						}
+					}
+    }
+}
+```
 
 #### d) Untuk setiap direktori yang dipindahkan ke “/home/[USER]/modul2/indomie/” harus membuat dua file kosong. File yang pertama diberi nama “coba1.txt”, lalu 3 detik kemudian membuat file bernama “coba2.txt”. (contoh : “/home/[USER]/modul2/indomie/{nama_folder}/coba1.txt”).
