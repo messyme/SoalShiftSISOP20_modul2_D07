@@ -112,8 +112,35 @@ int main (int argc, char *argv[])
     }
 }
 ```
+- ``` int main (int argc, char *argv[]) ``` Paramater argc dan argv digunakan oleh program berbasis command line (yang biasanya dijalankan di terminal / command prompt) sebagai argumen program  tersebut. 
+- ```argc``` adalah argumen count atau banyaknya argumen yang diberikan kepada program dalam bentuk bilangan bulat. 
+- ``` argv ``` adalah argumen value atau nilai dari argumen yang diberikan. 
+- ``` time() ``` dan ``` localtime() ``` untuk mendapatkan current local time atau waktu setempat.
 
 #### a) Program menerima 4 argumen berupa: i. Detik: 0-59 atau * (any value), ii. Menit: 0-59 atau * (any value), iii. Jam: 0-23 atau * (any value), iv. Path file .sh
+```
+    detik = -1; 
+    menit = -1;
+    jam = -1;
+```
+- ``` -1 ``` mewakili anytime atau any value
+
+```
+    if (argv[1][0] != '*') 
+        detik = atoi(argv[1]); 
+    if (argv[2][0] != '*') 
+        menit = atoi(argv[2]);
+    if (argv[3][0] != '*') 
+        jam = atoi(argv[3]);
+    
+    if (jam < -1 || jam > 23 || menit < -1 || menit > 59 || detik < -1 || detik > 59) {
+        printError ();
+        exit(EXIT_FAILURE);
+    }
+```
+- ``` atoi ``` berfungsi untuk mengkonversi string menjadi bilangan bertipe integer.
+- ```if (argv[1][0] != '*') detik = atoi(argv[1]); ``` berfungsi mendeteksi char pada kolom tertentu. jika pada kolom tertentu terdapat ```*``` maka simbol tersebut diubah menjadi integer value.
+
 
 #### b) Program akan mengeluarkan pesan error jika argumen yang diberikan tidak sesuai
 ```
@@ -156,13 +183,13 @@ static void daemonize()
     close(STDERR_FILENO);
 }
 ```
-template yang ada di modul 2
+- fungsi daemon yang syntaxnya berasal dari modul 2. Daemon adalah program komputer yang berjalan sebagai proses background daripada harus berada dalam kontrol langsung oleh pengguna secara interaktif
 
 #### e) Tidak boleh menggunakan fungsi system()
 ```
 if (fork()==0) execl("/bin/bash", "bash", argv[argc-1], NULL); 
 ```
-- ```execl```
+- ```execl``` adalah fungsi untuk menerima argumen untuk program yang akan dijalankan menggunakan mekanisme varargs dari bahasa C. System call exec berguna untuk membuat proses turunan yang terbentuk memiliki instruksi yang berbeda dengan proses induknya.
 - ```fork``` adalah fungsi system call di C untuk melakukan spawning process. Setelah memanggil fungsi itu, akan terdapat proses baru yang merupakan child process dan mengembalikan nilai 0 untuk child process dan nilai PID untuk parent process.
 
 
@@ -339,6 +366,14 @@ if (child_id1 == 0) {
         }
     }
 ```
+ dari modul 2 juga
+- ``` child_id = fork ()``` untuk membuat proses baru
+- ``` char *argv[] = {"mkdir", "-p", "modul2/indomie", NULL}; ``` sebagai child process untuk membuat direktori baru pada path ```modul2/indomie```
+- ``` execv ``` menyediakan array pointer ke string tanpa null yang mewakili daftar argumen yang tersedia untuk program baru. Argumen pertama, berdasarkan konvensi, harus menunjuk ke nama file yang terkait dengan file yang dieksekusi. Array pointer harus diakhiri oleh pointer NULL.
+- ``` mkdir ``` dalam ```/bin/mkdir``` merupakan path agar proses sebelumnya dapat berjalan.
+- ``` while ((wait(&status)) > 0); ``` merupakan parent process
+- ```  ```
+- ```  ```
 
 #### b) Kemudian program tersebut harus meng-ekstrak file jpg.zip di direktori “/home/[USER]/modul2/”. Setelah tugas sebelumnya selesai, ternyata tidak hanya itu tugasnya.
 ```
